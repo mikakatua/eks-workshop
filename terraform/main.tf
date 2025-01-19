@@ -410,3 +410,19 @@ module "secrets_manager" {
     tags       = local.tags
   }
 }
+
+module "kyverno" {
+  source = "./modules/security/kyverno"
+  count  = var.enable_kyverno ? 1 : 0
+
+  module_inputs = {
+    cluster_name            = module.eks.cluster_name
+    cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
+
+    kyverno_chart_version          = var.kyverno_chart_version
+    kyverno_policies_chart_version = var.kyverno_policies_chart_version
+
+    partition = local.partition
+    tags      = local.tags
+  }
+}

@@ -37,6 +37,7 @@ Additions to the original base application:
 * Configure KEDA to scale the `ui` Deployment based on CloudWatch metrics
 * Migrate the `carts` component to use the fully managed Amazon DynamoDB (leveraging EKS Pod Identity)
 * Retrieve the database credentials in the `catalog` deployment from AWS Secrets Manager (using the External Secrets Operator)
+* Add Pod Security Standards (PSS) restricted profile to the `assets` namespace
 
 ## Clean up
 ```bash
@@ -59,3 +60,5 @@ terraform -chdir=terraform destroy -auto-approve
 * Security: [Cluster Access Management](./docs/security/cluster-access.md)
 * Security: [Accessing AWS Services](./docs/security/service-access.md)
 * Security: [Secrets Management](./docs/security/secrets-management.md)
+* Security: [Policy Managed with Kyverno](./docs/security/kyverno.md)
+

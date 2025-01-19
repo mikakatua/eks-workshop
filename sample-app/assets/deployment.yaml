@@ -21,12 +21,21 @@ spec:
         app.kubernetes.io/created-by: eks-workshop
     spec:
       serviceAccountName: assets
-      securityContext: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         - name: copy
           image: "public.ecr.aws/aws-containers/retail-store-sample-assets:0.8.4"
           command:
             ["/bin/sh", "-c", "cp -R /usr/share/nginx/html/assets/* /efsvolume"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - name: efsvolume
               mountPath: /efsvolume
@@ -36,6 +45,7 @@ spec:
             - configMapRef:
                 name: assets
           securityContext:
+            allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL

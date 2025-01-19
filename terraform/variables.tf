@@ -82,6 +82,12 @@ variable "secrets_manager_option" {
   default     = "external-secrets"
 }
 
+variable "enable_kyverno" {
+  description = "Enable or disable Kyverno policy engine"
+  type        = bool
+  default     = false
+}
+
 ## Helm Chart versions
 
 variable "load_balancer_controller_chart_version" {
@@ -166,4 +172,16 @@ variable "external_secrets_chart_version" {
   description = "The chart version of external-secrets to use"
   type        = string
   default     = "0.12.1"
+}
+
+variable "kyverno_chart_version" {
+  description = "The chart version of kyverno to use"
+  type        = string
+  default     = "3.3.4"
+}
+
+variable "kyverno_policies_chart_version" {
+  description = "The chart version of kyverno-policies to use"
+  type        = string
+  default     = "3.3.2"
 }

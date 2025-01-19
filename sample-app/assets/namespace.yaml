@@ -4,3 +4,6 @@ metadata:
   name: assets
   labels:
     app.kubernetes.io/created-by: eks-workshop
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
