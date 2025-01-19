@@ -58,4 +58,4 @@ terraform -chdir=terraform destroy -auto-approve
 * [Cost visibility with Kubecost](./docs/observability/kubecost.md)
 * Security: [Cluster Access Management](./docs/security/cluster-access.md)
 * Security: [Accessing AWS Services](./docs/security/service-access.md)
-
+* Security: [Secrets Management](./docs/security/secrets-management.md)
