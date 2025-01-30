@@ -13,3 +13,4 @@ resources:
   - deployment.yaml
   - postgresql-statefulset.yaml
   - rabbitmq-statefulset.yaml
+  - netpol.yaml

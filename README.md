@@ -29,7 +29,7 @@ kubectl get all -l app.kubernetes.io/created-by=eks-workshop -A
 
 Additions to the original base application:
 * Ingress resource to expose the UI web store application to the outside world creating an ALB
-* EBS volume to be consumed by the MySQL database from the `catalog-mysql` microservice utilizing a statefulset
+* EBS volume to be consumed by the PostgreSQL database from the `orders` microservice utilizing a statefulset
 * EFS volume to store the product images for the `assets` microservice and scale the deployment to 2 replicas
 * Pod Affinity and Anti-Affinity rules to ensure the `checkout` and `checkout-redis` pods run on the desired nodes
 * Modified the `catalog` component by adding a node affinity rule to run only on Spot instances
@@ -38,6 +38,8 @@ Additions to the original base application:
 * Migrate the `carts` component to use the fully managed Amazon DynamoDB (leveraging EKS Pod Identity)
 * Retrieve the database credentials in the `catalog` deployment from AWS Secrets Manager (using the External Secrets Operator)
 * Add Pod Security Standards (PSS) restricted profile to the `assets` namespace
+* Add Network Policies to the frontend application components
+* Migrate the `catalog` MySQL database to Amazon RDS for MariaDB and add a Pod Security group
 
 ## Clean up
 ```bash

@@ -3,11 +3,10 @@ kind: Kustomization
 namespace: catalog
 resources:
   - namespace.yaml
-  - secrets.yaml
   - configMap.yaml
   - serviceAccount.yaml
   - service.yaml
-  - service-mysql.yaml
   - deployment.yaml
-  - statefulset-mysql.yaml
   - external-secret.yaml
+  - netpol.yaml
+  - sgPolicy.yaml

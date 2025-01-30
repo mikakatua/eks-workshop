@@ -41,30 +41,13 @@ module "external_secrets_addon" {
 
   enable_external_secrets = true
   external_secrets = {
-    chart_version = var.module_inputs.external_secrets_chart_version
+    chart_version        = var.module_inputs.external_secrets_chart_version
+    service_account_name = "external-secrets-sa"
+    namespace            = "external-secrets"
+    wait                 = true
   }
 
   tags = var.module_inputs.tags
-}
-
-resource "aws_secretsmanager_secret" "catalog_secret" {
-  name = "${var.module_inputs.cluster_name}/catalog-secret-${random_string.suffix.result}"
-
-  tags = var.module_inputs.tags
-}
-
-resource "aws_secretsmanager_secret_version" "catalog_secret_value" {
-  secret_id = aws_secretsmanager_secret.catalog_secret.id
-  secret_string = jsonencode({
-    username = "catalog"
-    password = "5YFMdokkZMeCyhik"
-  })
-}
-
-resource "random_string" "suffix" {
-  length  = 6
-  special = false
-  upper   = false
 }
 
 # Create policy to access secrets and SSM parameters
@@ -102,7 +85,7 @@ resource "aws_iam_policy" "secrets_provider" {
 module "iam_assumable_role_catalog_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "5.44.0"
-  count = var.module_inputs.secrets_manager == "secrets-store-csi-driver" ? 1 : 0
+  count   = var.module_inputs.secrets_manager == "secrets-store-csi-driver" ? 1 : 0
 
   create_role                   = true
   role_name                     = "${var.module_inputs.cluster_name}-catalog-secrets-irsa"
@@ -114,7 +97,7 @@ module "iam_assumable_role_catalog_irsa" {
 }
 
 resource "kubectl_manifest" "cluster_secret_store" {
-  count   = var.module_inputs.secrets_manager == "external-secrets" ? 1 : 0
+  count = var.module_inputs.secrets_manager == "external-secrets" ? 1 : 0
 
   yaml_body = <<-YAML
     apiVersion: external-secrets.io/v1beta1
@@ -132,6 +115,7 @@ resource "kubectl_manifest" "cluster_secret_store" {
                 name: "external-secrets-sa"
                 namespace: "external-secrets"
   YAML
+
   depends_on = [
     module.external_secrets_addon
   ]

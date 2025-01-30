@@ -3,6 +3,7 @@ output "environment_variables" {
   value = {
     AWS_REGION                       = var.aws_region
     EKS_CLUSTER_NAME                 = module.eks.cluster_name
+    VPC_ID                           = module.vpc.vpc_id
     EKS_DEFAULT_MNG_NAME             = keys(module.eks.eks_managed_node_groups)[0]
     LBC_CHART_VERSION                = var.load_balancer_controller_chart_version
     LBC_ROLE_ARN                     = module.eks_blueprints_addons.aws_load_balancer_controller.iam_role_arn
@@ -24,8 +25,10 @@ output "environment_variables" {
     ADMINS_IAM_ROLE                  = module.access_entries.admins_iam_role
     CARTS_DYNAMODB_TABLENAME         = module.dynamodb_access.carts_dynamodb_tablename
     CARTS_IAM_ROLE                   = module.dynamodb_access.carts_iam_role
-    CATALOG_SECRET_NAME              = module.secrets_manager.catalog_secret_name
+    CATALOG_SECRET_NAME              = aws_secretsmanager_secret.catalog_db_secret.name
     CATALOG_IAM_ROLE                 = module.secrets_manager.catalog_iam_role
+    CATALOG_RDS_ENDPOINT             = module.rds_pod_sg.catalog_rds_endpoint
+    CATALOG_SG_ID                    = module.rds_pod_sg.catalog_sg_id
   }
 }
 

@@ -26,6 +26,33 @@ locals {
   }
 }
 
+# Credentials for the catalog database
+resource "aws_secretsmanager_secret" "catalog_db_secret" {
+  name = "${var.cluster_name}/catalog-secret-${random_string.suffix.result}"
+
+  tags = local.tags
+}
+
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
+resource "aws_secretsmanager_secret_version" "catalog_db_secret_version" {
+  secret_id = aws_secretsmanager_secret.catalog_db_secret.id
+  secret_string = jsonencode({
+    username = "catalog_user"
+    password = random_password.db_password.result
+  })
+}
+
+resource "random_password" "db_password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 ################################################################################
 # EKS Cluster
 ################################################################################
@@ -51,17 +78,19 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
+      # ami_type                 = "AL2023_ARM_64_STANDARD"
+      # instance_types           = ["c6g.large"] # ARM64 architecture (Graviton 2)
       ami_release_version      = var.ami_release_version
-      ami_type                 = "AL2023_ARM_64_STANDARD"
-      instance_types           = ["t4g.medium"] # ARM64 architecture (Graviton)
+      ami_type                 = "AL2023_x86_64_STANDARD"
+      instance_types           = ["c5.large"]
       force_update_version     = true
       use_name_prefix          = false
       iam_role_name            = "${var.cluster_name}-ng-default"
       iam_role_use_name_prefix = false
 
       min_size     = 0
-      max_size     = 5
-      desired_size = 3
+      max_size     = 3
+      desired_size = 2
 
       update_config = {
         max_unavailable_percentage = 50
@@ -79,9 +108,11 @@ module "eks" {
     }
 
     managed-spot = {
-      capacity_type            = "SPOT"
-      ami_type                 = "AL2023_ARM_64_STANDARD"
-      instance_types           = ["t4g.small", "t4g.medium", "m6g.medium", "m6g.large"] # Mixing instance types for spot capacity flexibility
+      capacity_type = "SPOT"
+      # ami_type                 = "AL2023_ARM_64_STANDARD"
+      # instance_types           = ["c6g.medium", "c6g.large", "m6g.medium", "m6g.large"] # Mixing instance types for spot capacity flexibility
+      ami_type                 = "AL2023_x86_64_STANDARD"
+      instance_types           = ["c5.large", "m5.large", "r5.large"] # Mixing instance types for spot capacity flexibility
       force_update_version     = true
       use_name_prefix          = false
       iam_role_name            = "${var.cluster_name}-spot-node"
@@ -164,8 +195,8 @@ module "eks_blueprints_addons" {
       configuration_values = jsonencode({
         env = {
           ENABLE_POD_ENI                    = "true"
-          ENABLE_PREFIX_DELEGATION          = "true" # increases the number of IP addresses available for Pods
-          POD_SECURITY_GROUP_ENFORCING_MODE = "standard"
+          ENABLE_PREFIX_DELEGATION          = "true"     # increases the number of IP addresses available for Pods
+          POD_SECURITY_GROUP_ENFORCING_MODE = "standard" # recommended when using network policy with Pods that have associated security groups
         }
         nodeAgent = {
           enablePolicyEventLogs = "true"
@@ -424,5 +455,19 @@ module "kyverno" {
 
     partition = local.partition
     tags      = local.tags
+  }
+}
+
+module "rds_pod_sg" {
+  source = "./modules/networking/rds-pod-sg"
+
+  module_inputs = {
+    cluster_name                = module.eks.cluster_name
+    catalog_db_secret_arn       = aws_secretsmanager_secret.catalog_db_secret.arn
+    private_subnets             = module.vpc.private_subnets
+    private_subnets_cidr_blocks = module.vpc.private_subnets_cidr_blocks
+    vpc_id                      = module.vpc.vpc_id
+
+    tags = local.tags
   }
 }
