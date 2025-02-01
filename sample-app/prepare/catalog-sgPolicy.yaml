@@ -2,6 +2,7 @@ apiVersion: vpcresources.k8s.aws/v1beta1
 kind: SecurityGroupPolicy
 metadata:
   name: catalog-rds-access
+  namespace: catalog
 spec:
   podSelector:
     matchLabels:
@@ -9,3 +10,4 @@ spec:
   securityGroups:
     groupIds:
       - ${CATALOG_SG_ID}
+      - ${CLUSTER_SG_ID}  # allow the Pods to communicate with the Kubernetes services

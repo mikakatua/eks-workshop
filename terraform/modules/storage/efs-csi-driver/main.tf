@@ -24,9 +24,12 @@ module "efs" {
   creation_token = "${var.module_inputs.cluster_name}-efs-token"
 
   # Mount targets / security group
+  # You can create only one mount target per AZ. If an AZ has multiple subnets, you create a mount target in only one of the subnets
+  # As long as you have one mount target in an AZ, the EC2 instances launched in any of its subnets can share the same mount target
   mount_targets = {
     for k, v in var.module_inputs.azs_private_subnets : k => { subnet_id = v }
   }
+
   security_group_description = "efs security group allow access to port 2049"
   security_group_vpc_id      = var.module_inputs.vpc_id
   security_group_rules = {

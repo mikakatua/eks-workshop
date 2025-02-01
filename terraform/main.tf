@@ -16,9 +16,9 @@ locals {
   partition  = data.aws_partition.current.partition
   region     = var.aws_region
 
+  azs             = slice(data.aws_availability_zones.available.names, 0, 3)
   private_subnets = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 3, k + 3)]
   public_subnets  = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 3, k)]
-  azs             = slice(data.aws_availability_zones.available.names, 0, 3)
 
   tags = {
     created-by = "eks-workshop"
@@ -78,11 +78,9 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
-      # ami_type                 = "AL2023_ARM_64_STANDARD"
-      # instance_types           = ["c6g.large"] # ARM64 architecture (Graviton 2)
+      ami_type                 = "AL2023_ARM_64_STANDARD"
+      instance_types           = ["c6g.large"] # ARM64 architecture (Graviton 2)
       ami_release_version      = var.ami_release_version
-      ami_type                 = "AL2023_x86_64_STANDARD"
-      instance_types           = ["c5.large"]
       force_update_version     = true
       use_name_prefix          = false
       iam_role_name            = "${var.cluster_name}-ng-default"
@@ -108,11 +106,9 @@ module "eks" {
     }
 
     managed-spot = {
-      capacity_type = "SPOT"
-      # ami_type                 = "AL2023_ARM_64_STANDARD"
-      # instance_types           = ["c6g.medium", "c6g.large", "m6g.medium", "m6g.large"] # Mixing instance types for spot capacity flexibility
-      ami_type                 = "AL2023_x86_64_STANDARD"
-      instance_types           = ["c5.large", "m5.large", "r5.large"] # Mixing instance types for spot capacity flexibility
+      capacity_type            = "SPOT"
+      ami_type                 = "AL2023_ARM_64_STANDARD"
+      instance_types           = ["c6g.medium", "c6g.large", "m6g.medium", "m6g.large"] # Mixing instance types for spot capacity flexibility
       force_update_version     = true
       use_name_prefix          = false
       iam_role_name            = "${var.cluster_name}-spot-node"

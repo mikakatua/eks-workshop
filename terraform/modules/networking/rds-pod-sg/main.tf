@@ -38,6 +38,10 @@ module "catalog_mariadb" {
   maintenance_window = "Mon:00:00-Mon:03:00"
   backup_window      = "03:00-06:00"
 
+  # Disable final snapshot before destroying the database
+  skip_final_snapshot = true
+
+  # Disable backups to avoid automated snapshots
   backup_retention_period = 0
 
   tags = var.module_inputs.tags

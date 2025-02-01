@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - catalog-ns.yaml
+  - catalog-sgPolicy.yaml
+  - carts-ns.yaml
+  - checkout-ns.yaml
+  - assets-ns.yaml
+  - orders-ns.yaml
+  - ui-ns.yaml
+  - other-ns.yaml

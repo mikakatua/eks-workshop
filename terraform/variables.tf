@@ -25,7 +25,7 @@ variable "ami_release_version" {
 }
 
 variable "vpc_cidr" {
-  description = "Defines the CIDR block used on Amazon VPC created for Amazon EKS."
+  description = "Defines the CIDR block used on Amazon VPC created for Amazon EKS"
   type        = string
   default     = "10.42.0.0/16"
 }

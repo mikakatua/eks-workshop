@@ -1,6 +1,7 @@
 output "environment_variables" {
   description = "Environment variables to be added to the shell"
   value = {
+    DOLLAR                           = "$" # used to escape envsubst
     AWS_REGION                       = var.aws_region
     EKS_CLUSTER_NAME                 = module.eks.cluster_name
     VPC_ID                           = module.vpc.vpc_id
@@ -29,6 +30,7 @@ output "environment_variables" {
     CATALOG_IAM_ROLE                 = module.secrets_manager.catalog_iam_role
     CATALOG_RDS_ENDPOINT             = module.rds_pod_sg.catalog_rds_endpoint
     CATALOG_SG_ID                    = module.rds_pod_sg.catalog_sg_id
+    CLUSTER_SG_ID                    = module.eks.cluster_primary_security_group_id
   }
 }
 

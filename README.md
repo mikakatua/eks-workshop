@@ -23,7 +23,8 @@ You can find the full source code for the sample application on [GitHub](https:/
 # Set environment variables from terraform outputs
 eval $(terraform -chdir=terraform output -json environment_variables | jq -r 'to_entries | .[] | "export \(.key)=\"\(.value)\""')
 
-kubectl kustomize sample-app | envsubst | kubectl apply -f -
+kubectl kustomize sample-app/prepare | envsubst | kubectl apply -f -
+kubectl kustomize sample-app/deploy | envsubst | kubectl apply -f -
 kubectl get all -l app.kubernetes.io/created-by=eks-workshop -A
 ```
 
@@ -39,11 +40,12 @@ Additions to the original base application:
 * Retrieve the database credentials in the `catalog` deployment from AWS Secrets Manager (using the External Secrets Operator)
 * Add Pod Security Standards (PSS) restricted profile to the `assets` namespace
 * Add Network Policies to the frontend application components
-* Migrate the `catalog` MySQL database to Amazon RDS for MariaDB and add a Pod Security group
+* Migrate the `catalog` database to Amazon RDS for MariaDB and add a Pod Security group
 
 ## Clean up
 ```bash
-kubectl kustomize sample-app | envsubst | kubectl delete -f -
+kubectl kustomize sample-app/deploy | envsubst | kubectl delete -f -
+kubectl kustomize sample-app/prepare | envsubst | kubectl delete -f -
 kubectl delete ingress -A --all # delete any remaining Load balancers provisioned by the ingress ALB controller
 aws dynamodb delete-table --table-name $CARTS_DYNAMODB_TABLENAME
 terraform -chdir=terraform destroy -auto-approve
